@@ -8,6 +8,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IDashboardPlugin;
 
+import de.intranda.digiverso.model.helper.DashboardHelperBarcode;
 import de.intranda.digiverso.model.helper.DashboardHelperTasks;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.FacesContextHelper;
@@ -36,6 +37,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private XMLConfiguration pluginConfig;
 
     private transient DashboardHelperTasks tasksHelper;
+    private transient DashboardHelperBarcode barcodeHelper;
 
     /**
      * Constructor
@@ -51,6 +53,14 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             tasksHelper = new DashboardHelperTasks(pluginConfig);
         }
         return tasksHelper;
+    }
+
+    public DashboardHelperBarcode getBarcodeHelper() {
+        log.info("getting barcodeHelper");
+        if (barcodeHelper == null) {
+            barcodeHelper = new DashboardHelperBarcode(pluginConfig);
+        }
+        return barcodeHelper;
     }
 
     public String getFormattedDate(Date date) {
@@ -85,6 +95,14 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             dateFormat = DateFormat.getDateInstance(formatType, userLang);
         }
         return dateFormat;
+    }
+
+    public void execute() {
+        log.info("hello world");
+    }
+
+    public String getOutput() {
+        return "HELLO WORLD";
     }
 
 }
