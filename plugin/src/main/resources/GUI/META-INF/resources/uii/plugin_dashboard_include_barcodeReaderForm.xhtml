@@ -13,18 +13,24 @@
 
 	<composite:implementation>
 
-		<h:panelGroup>
+		<ui:fragment>
 			
 			<div class="row">
-				<div class="col-sm-6">
-					<ui:include src="plugin_dashboard_include_tasksLastChanges.xhtml" />		
-				</div>
 				
-				<div class="col-sm-6">
-            		<ui:include src="plugin_dashboard_include_barcodeReaderForm.xhtml"></ui:include>
+				<div class="col-sm-12">
+                
+                    <intranda:box
+                        boxType="action"
+                        boxPadding="true"
+                        icon="fa-plug"
+                        title="#{msgs[DashboardForm.plugin.title]}">
+                        
+                        <h:outputText value="hello dashboard plugin: #{DashboardForm.plugin.value}"/>
+                    </intranda:box>
+            		
 				</div>
 			</div>
-		</h:panelGroup>
+		</ui:fragment>
 
 	</composite:implementation>
 </ui:composition>

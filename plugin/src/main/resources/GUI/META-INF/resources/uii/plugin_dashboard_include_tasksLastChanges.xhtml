@@ -1,0 +1,109 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://myfaces.apache.org/tomahawk"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG">
+
+    <composite:interface>
+    </composite:interface>
+
+    <composite:implementation>
+
+        <ui:fragment
+            rendered="#{DashboardForm.plugin.tasksHelper.showLastChanges and DashboardForm.plugin.tasksHelper.taskChangeHistory.size() gt 0}">
+            <div class="mb-3">
+                <intranda:box
+                    boxType="primary"
+                    boxPadding="false"
+                    icon="fa-list"
+                    title="#{msgs.plugin_dashboard_extended_recentlyClosedTasks}">
+
+                    <h:form
+                        id="recenttasks"
+                        prependId="false">
+                        <!-- 
+                        <div class="gw-table" style="#{DashboardForm.plugin.tasksHelper.taskChangeHistory.size() gt 4 ? 'overflow-y:auto; max-height:225px;' : ''}">
+                        -->
+                        <div class="gw-table" style="#{DashboardForm.plugin.tasksHelper.taskChangeHistory.size() gt 4 ? 'overflow-y:auto; max-height:525px; ' : ''}">
+                            <div class="gw-table__wrapper">
+                                <table
+                                    role="grid"
+                                    id="recenttasksTable"
+                                    class="table table-bordered table-hover">
+
+                                    <!-- COLUMNHEADER -->
+                                    <thead>
+                                        <tr role="row">
+                                            <th>#{msgs.prozess}</th>
+                                            <th>#{msgs.arbeitsschritt}</th>
+                                            <th>#{msgs.statusAbgeschlossen}</th>
+                                            <th>#{msgs.auswahl}</th>
+                                        </tr>
+                                    </thead>
+                                    <!-- // COLUMNHEADER -->
+
+                                    <!-- TABLE BODY -->
+                                    <tbody>
+                                        <ui:repeat
+                                            var="historyStep"
+                                            value="#{DashboardForm.plugin.tasksHelper.taskChangeHistory}">
+                                            <tr>
+                                                <!-- PROCESS TITLE -->
+                                                <td title="#{historyStep.process.titel}">
+                                                    <h:outputText value="#{historyStep.process.titel}" />
+                                                </td>
+                                                <!-- STEP TITLE -->
+                                                <td>
+                                                    <h:outputText value="#{historyStep.closedStep.titel}" />
+                                                </td>
+                                                <!-- EDIT DATE -->
+                                                <td>
+                                                    <h:outputText
+                                                        value="#{DashboardForm.plugin.getFormattedDate(historyStep.closedStep.bearbeitungsende)}" />
+                                                    <br />
+                                                    <h:outputText
+                                                        value="#{DashboardForm.plugin.getFormattedTime(historyStep.closedStep.bearbeitungsende)}" />
+                                                </td>
+                                                <!-- BUTTON -->
+                                                <td>
+                                                    <button
+                                                        rel="tooltip"
+                                                        jsf:rendered="#{historyStep.assignable}"
+                                                        jsf:title="#{msgs.plugin_dashboard_extended_reOpenTask}"
+                                                        pt:aria-label="#{msgs.plugin_dashboard_extended_reOpenTask}"
+                                                        jsf:id="view1"
+                                                        class="btn btn-blank"
+                                                        jsf:action="#{DashboardForm.plugin.tasksHelper.reOpenTask}">
+                                                        <i class="fa fa-undo"></i>
+                                                        <f:passThroughAttribute
+                                                            name="data-toggle"
+                                                            value="tooltip" />
+                                                        <f:setPropertyActionListener
+                                                            value="#{historyStep}"
+                                                            target="#{DashboardForm.plugin.tasksHelper.currentStep}" />
+                                                    </button>
+                                                </td>
+
+                                            </tr>
+                                        </ui:repeat>
+                                    </tbody>
+                                    <!-- // TABLE BODY -->
+
+                                </table>
+                            </div>
+                        </div>
+                    </h:form>
+                </intranda:box>
+            </div>
+
+        </ui:fragment>
+    </composite:implementation>
+
+</ui:composition>
+
+
