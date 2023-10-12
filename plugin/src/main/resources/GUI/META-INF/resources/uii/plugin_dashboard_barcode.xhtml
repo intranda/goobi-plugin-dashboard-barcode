@@ -4,7 +4,7 @@
 	xmlns:h="http://xmlns.jcp.org/jsf/html"
 	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:x="http://myfaces.apache.org/tomahawk"
-	xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+	xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:p="http://primefaces.org/ui">
 
@@ -16,26 +16,16 @@
 		<h:panelGroup>
 			<div class="row">
 				<div class="col-sm-12">
-					<div class="box box-color box-bordered lightgrey">
-						<div class="box-title">
-							<h3>
-								<i class="fa fa-plug"></i>
-								<h:outputText
-									value="#{msgs[DashboardForm.plugin.title]}" />
-							</h3>
-						</div>
-						<div class="box-content">
-
-							<h:panelGroup id="actionform" styleClass="col-sm-12">
-								<div class="row">
-									<h:form>
-										hello dashboard plugin: #{DashboardForm.plugin.value}
-									</h:form>
-								</div>
-							</h:panelGroup>
-
-						</div>
-					</div>
+                
+                    <intranda:box
+                        boxType="action"
+                        boxPadding="true"
+                        icon="fa-plug"
+                        title="#{msgs[DashboardForm.plugin.title]}">
+                        
+                        <h:outputText value="hello dashboard plugin: #{DashboardForm.plugin.value}"/>
+                    </intranda:box>
+            		
 				</div>
 			</div>
 		</h:panelGroup>
