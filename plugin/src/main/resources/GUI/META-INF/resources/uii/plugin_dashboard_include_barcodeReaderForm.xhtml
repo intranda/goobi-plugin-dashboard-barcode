@@ -27,67 +27,106 @@
 							boxPadding="false"
 							title="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
 							icon="fa-edit">
-							<!-- 	
-								<intranda:formInputDropDown
-									id="actions"
-									label="#{msgs.plugin_dashboard_barcode_actions}"
-									field="#{DashboardForm.plugin.choices}"
-									help="#{msgs.plugin_dashboard_barcode_actionsHelp}"
-									name="firsttab_digitaleKollektionen"
-									selectItems="#{DashboardForm.plugin.choices}"
-									required="false"
-									var="step"
-									itemLabel="#{step}"
-									itemValue="#{step}" />
-								-->
-								<intranda:formInputDropDownWithEmptyValue
-									id="actions"
-									label="#{msgs.plugin_dashboard_barcode_actions}"
-									field="#{DashboardForm.plugin.choices}"
-									help="#{msgs.plugin_dashboard_barcode_actionsHelp}"
-									name="firsttab_digitaleKollektionen"
-									selectItems="#{DashboardForm.plugin.choices}"
-									required="false"
-									var="step"
-									itemLabel="#{step}"
-									itemValue="#{step}" />
 								
-								<intranda:formInputText
-									id="property"
-									label="#{msgs.plugin_dashboard_barcode_property}"
-									required="false"
-									field=""
-									help="Tragen Sie hier den Nachnamen des Benutzers ein."
-									name="nachname" />
+								<!-- SELECT ONE ROW -->
+								<div class="row">
+									<div class="col-12 col-md-3">
+										<intranda:formLabel label="#{msgs.plugin_dashboard_barcode_actions}" 
+											labelFor="actionOptions"  labelRequired="false"/>
+									</div>
 							
-								<!-- 
-								<intranda:formInputCheckBox
-									id="isActive"
-									label="Benutzerkonto aktiv"
-									field="true"
-									help="Deaktivieren Sie hier den Benutzer, wenn dieser keinen weiteren Zugriff mehr auf Goobi erhalten soll. Sämtliche Daten des Nutzers bleiben dabei erhalten. Der Benutzer kann zu einem späteren Zeitpunkt jederzeit wieder aktiviert werden."
-									name="istAktiv" />
+									<!-- SELECT ONE -->
+									<div class="col-12 col-md-9">
+										<h:selectOneRadio
+											id="actionOptions"
+											value="#{DashboardForm.plugin.action}"
+											styleClass="select-radio select-radio-horizontal">
+											<f:selectItem
+												itemLabel="#{msgs.plugin_dashboard_barcode_takeOrFinishTask}"
+												itemValue="OR" />
+											<f:selectItem
+												itemLabel="#{msgs.plugin_dashboard_barcode_takeAndFinishTask}"
+												itemValue="AND" />
+											<f:selectItem
+												itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
+												itemValue="LOC" />
+										</h:selectOneRadio>
+										<!-- 
+										<intranda:formHelp content="helpProcessDefaultSortOrder" msgFor="processDefaultSortOrder" />
+										-->
+									</div>
+									<!-- SELECT ONE -->
 							
-								<intranda:formInputTextArea
-									label="Individuelle CSS Styleangaben"
-									id="customCss"
-									field=""
-									help="Hier können individuelle CSS Stylingangaben konfiguriert werden. Beispiel: body {    font-family: Consolas;    font-size: 12px !important;}h1, h2, h3, h4, h5 {    font-family: 'Consolas', sans-serif;}#navigation {    background: #ee1edf;}"
-									name="customCssName"
-									fieldStyle="form-control" />
+								</div>
+								<!-- // SELECT ONE ROW -->
 								
-								<intranda:formInputSelectMany
-									id="collections"
-									label="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
-									field="#{DashboardForm.plugin.choices}"
-									help="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
-									name="firsttab_digitaleKollektionen"
-									selectItems="#{DashboardForm.plugin.choices}"
-									required="false"
-									var="step"
-									itemLabel="#{step}"
-									itemValue="#{step}" />
-								-->
+								<!-- INPUT ROW -->
+								<div class="row">
+							
+									<!-- LABEL -->
+									<div class="col-12 col-md-3">
+										<intranda:formLabel label="Standort" 
+										labelFor="locationField"  labelRequired="false"/>
+									</div>
+									<!-- // LABEL -->
+							
+									<!-- INPUT -->
+									<div class="col-12 col-md-9">
+										<h:inputText
+											id="locationField"
+											styleClass="form-control form__input"
+											value="#{DashboardForm.plugin.property}"
+											required="false"
+											readonly="false"
+											tabindex="0">
+											<c:if test="false">
+												<f:passThroughAttribute
+													name="data-gw-focus-on-load"
+													value="false" />
+											</c:if>
+										</h:inputText>
+							
+										<!-- Help messages, inline + warning -->
+										<intranda:formHelp content="Tragen Sie hier den Standort, die Abteilung oder das Gebäude ein, zu dem der Benutzer gehört." msgFor="locationField" />
+									</div>
+									<!-- // INPUT -->
+							
+								</div>
+								<!-- INPUT ROW -->
+								
+								<!-- INPUT ROW -->
+								<div class="row">
+							
+									<!-- LABEL -->
+									<div class="col-12 col-md-3">
+										<intranda:formLabel label="Barcode" 
+										labelFor="barcodeField"  labelRequired="true"/>
+									</div>
+									<!-- // LABEL -->
+							
+									<!-- INPUT -->
+									<div class="col-12 col-md-9">
+										<h:inputText
+											id="barcodeField"
+											styleClass="form-control form__input"
+											value="#{DashboardForm.plugin.barcode}"
+											required="true"
+											readonly="false"
+											tabindex="0">
+											<c:if test="false">
+												<f:passThroughAttribute
+													name="data-gw-focus-on-load"
+													value="false" />
+											</c:if>
+										</h:inputText>
+							
+										<!-- Help messages, inline + warning -->
+										<intranda:formHelp content="Tragen Sie hier den Barcode ein." msgFor="barcodeField" />
+									</div>
+									<!-- // INPUT -->
+							
+								</div>
+								<!-- INPUT ROW -->
 			
 								<div class="box__actions">
 							
@@ -110,12 +149,14 @@
 										<span>
 											<h:outputText value="#{msgs.plugin_dashboard_barcode_execute}" />
 										</span>
+										<!-- 
 										<f:passThroughAttribute
 											name="data-toggle"
 											value="tooltip" />
 										<f:setPropertyActionListener
 											value="#{step}"
 											target="#{DashboardForm.plugin.currentStep}" />
+										-->
 									</button>
 							
 									<!-- Delete -->

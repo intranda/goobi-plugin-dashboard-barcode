@@ -44,12 +44,30 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private transient DashboardHelperTasks tasksHelper;
     private transient DashboardHelperBarcode barcodeHelper;
 
-    @Getter
-    @Setter
-    private String currentStep;
-
     @Setter
     private List<String> choices;
+
+    @Getter
+    private String action = "OR";
+    @Getter
+    private String property = "";
+    @Getter
+    private String barcode = "";
+
+    public void setAction(String action) {
+        log.debug("setting up action with " + action);
+        this.action = action;
+    }
+
+    public void setProperty(String property) {
+        log.debug("setting up property with " + property);
+        this.property = property;
+    }
+
+    public void setBarcode(String barcode) {
+        log.debug("setting up barcode with " + barcode);
+        this.barcode = barcode;
+    }
 
     /**
      * Constructor
@@ -110,7 +128,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     public void execute() {
-        log.info("hello world");
+        log.debug("hello world");
+        log.debug("action = " + action);
+        log.debug("barcode = " + barcode);
     }
 
     public List<String> getChoices() {
@@ -118,10 +138,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         String choice2 = "plugin_dashboard_barcode_takeAndFinishTask";
         String choice3 = "plugin_dashboard_barcode_changeLocationOnly";
         return Arrays.asList(choice1, choice2, choice3).stream().map(Helper::getTranslation).collect(Collectors.toList());
-    }
-
-    public String getOutput() {
-        return "HELLO WORLD";
     }
 
 }
