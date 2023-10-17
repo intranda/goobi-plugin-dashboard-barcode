@@ -1,6 +1,7 @@
 package de.intranda.goobi.plugins;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,7 @@ import de.intranda.digiverso.model.helper.DashboardHelperTasks;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import lombok.Getter;
@@ -34,9 +36,10 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private static final String PLUGIN_NAME = "intranda_dashboard_barcode";
-    private static final String ACTION_OR = "OR";
-    private static final String ACTION_AND = "AND";
-    private static final String ACTION_RELOCATION = "LOC";
+    private static final String ACTION_TAKE_NEW_TASK = "NEW";
+    private static final String ACTION_FINISH_OLD_TASK = "DONE";
+    private static final String ACTION_BOTH = "BOTH";
+    private static final String ACTION_RELOCATION = "RELOC";
     private static final String PROPERTY_PROCESS_LOCATION = "process_location";
 
     @Getter
@@ -62,7 +65,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private List<String> choices;
 
     @Getter
-    private String action = ACTION_OR;
+    private String action = ACTION_TAKE_NEW_TASK;
     @Getter
     private String location = "";
     @Getter
@@ -155,13 +158,16 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
 
         switch (action) {
-            case "OR":
-                takeOrFinishTask(process);
+            case "NEW":
+                takeNewTask(process);
                 break;
-            case "AND":
+            case "DONE":
+                finishOldTask(process);
+                break;
+            case "BOTH":
                 takeAndFinishTask(process);
                 break;
-            case "LOC":
+            case "RELOC":
                 changeLocation(process);
                 break;
             default:
@@ -182,44 +188,72 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return barcode;
     }
 
-    private void takeOrFinishTask(Process process) {
-        boolean success = true;
-        log.debug("current user is: " + currentUser.getNachVorname());
-        log.debug("current user has id = " + currentUser.getId());
-        List<Step> currentUserStepsInWork = currentUser.getBearbeitungsschritte();
-        List<Usergroup> currentUserUsergroups = currentUser.getBenutzergruppen();
-        if (currentUserStepsInWork != null) {
-            log.debug("current user has following tasks to do:");
-            for (Step step : currentUserStepsInWork) {
-                log.debug(step.getTitel());
-            }
+    private void takeNewTask(Process process) {
+        // check if there is any task available for the user
+        List<Step> availableSteps = getAvailableTasks(process);
+        for (Step availableStep : availableSteps) {
+            log.debug("availableStep = " + availableStep.getTitel());
         }
-        if (currentUserUsergroups != null) {
-            log.debug("current user belongs to the following user groups:");
-            for (Usergroup group : currentUserUsergroups) {
-                log.debug(group.getTitel());
-            }
-        }
+        // assign the task(s) to the current user
 
+        // print message
+    }
+
+    private List<Step> getAvailableTasks(Process process) {
+        List<Step> results = new ArrayList<>();
+        //        Step firstOpenStep = process.getFirstOpenStep();
         List<Step> steps = process.getSchritteList();
         for (Step step : steps) {
-            log.debug("------- step " + step.getTitel() + " -------");
-            log.debug("This step has status: " + step.getBearbeitungsstatusAsString());
-            User user = step.getBearbeitungsbenutzer();
-            log.debug("user = " + String.valueOf(user));
-            List<User> users = step.getBenutzerList();
-            List<Usergroup> userGroups = step.getBenutzergruppenList();
-            //            step.setBearbeitungsstatusEnum(StepStatus.INWORK);
-            log.debug("This step has following users:");
-            for (User u : users) {
-                log.debug(u.getNachVorname());
-            }
-            log.debug("This step has following user groups:");
-            for (Usergroup group : userGroups) {
-                log.debug(group.getTitel());
+            StepStatus stepStatus = step.getBearbeitungsstatusEnum();
+            log.debug("Step '" + step.getTitel() + "' has status '" + stepStatus + "'.");
+            if (StepStatus.OPEN.equals(stepStatus) && isStepAvailableForUser(step, currentUser)) {
+                results.add(step);
             }
         }
 
+        return results;
+    }
+
+    private boolean isStepAvailableForUser(Step step, User user) {
+        User stepUser = step.getBearbeitungsbenutzer();
+        if (stepUser != null) {
+            // task already taken
+            log.debug("this step is already taken by the user: " + stepUser.getNachVorname());
+            return false;
+        }
+
+        // task still available, check settings of user group
+        List<Usergroup> stepUserGroups = step.getBenutzergruppen();
+        List<Usergroup> userGroups = user.getBenutzergruppen();
+        for (Usergroup stepUserGroup : stepUserGroups) {
+            for (Usergroup userGroup : userGroups) {
+                if (stepUserGroup.equals(userGroup)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void finishOldTask(Process process) {
+        // check if there is any task that is ready to finish
+        List<Step> allSteps = process.getSchritte();
+        log.debug("proces shas " + allSteps.size() + " steps");
+        for (Step step : allSteps) {
+            if (isStepCloseableForUser(step, currentUser)) {
+                log.debug("step ready to close: " + step.getTitel());
+                log.debug("this step has status " + step.getBearbeitungsstatusEnum());
+                // TODO: close this step
+            }
+        }
+    }
+
+    private boolean isStepCloseableForUser(Step step, User user) {
+        User stepUser = step.getBearbeitungsbenutzer();
+        return stepUser != null
+                && StepStatus.INWORK.equals(step.getBearbeitungsstatusEnum())
+                && currentUser.equals(stepUser);
     }
 
     private void takeAndFinishTask(Process process) {
@@ -228,6 +262,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private boolean takeTask(Process process) {
         log.debug("taking a new task");
+        List<Step> steps = process.getSchritteList();
+
+        // check if any step can be taken
 
         return true;
     }
@@ -283,6 +320,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private boolean addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
+        // TODO: translation
         String message = "Relocated to: " + location;
 
         // add journal entry

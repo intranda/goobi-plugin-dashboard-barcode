@@ -42,14 +42,17 @@
 											value="#{DashboardForm.plugin.action}"
 											styleClass="select-radio select-radio-horizontal">
 											<f:selectItem
-												itemLabel="#{msgs.plugin_dashboard_barcode_takeOrFinishTask}"
-												itemValue="OR" />
+												itemLabel="#{msgs.plugin_dashboard_barcode_takeNewTask}"
+												itemValue="NEW" />
+											<f:selectItem
+												itemLabel="#{msgs.plugin_dashboard_barcode_finishOldTask}"
+												itemValue="DONE" />
 											<f:selectItem
 												itemLabel="#{msgs.plugin_dashboard_barcode_takeAndFinishTask}"
-												itemValue="AND" />
+												itemValue="BOTH" />
 											<f:selectItem
 												itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
-												itemValue="LOC" />
+												itemValue="RELOC" />
 										</h:selectOneRadio>
 										<!-- 
 										<intranda:formHelp content="helpProcessDefaultSortOrder" msgFor="processDefaultSortOrder" />
