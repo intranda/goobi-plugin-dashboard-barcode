@@ -2,13 +2,12 @@ package de.intranda.goobi.plugins;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.goobi.beans.Process;
 import org.goobi.beans.Processproperty;
 import org.goobi.beans.Step;
@@ -48,17 +47,24 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private static final String ACTION_RELOCATION = "RELOC";
     private static final String PROPERTY_PROCESS_LOCATION = "process_location";
 
+    private static final String HEADER_PROCESS_NOT_FOUND = "plugin_dashboard_barcode_processNotFoundError";
+    private static final String HEADER_STEP_NONE_AVAILABLE = "plugin_dashboard_barcode_stepNoneAvailable";
+    private static final String HEADER_STEP_ASSIGNMENT_ERROR = "plugin_dashboard_barcode_stepAlreadyAssignedError";
+    private static final String HEADER_STEP_ASSIGNMENT_SUCCESS = "plugin_dashboard_barcode_stepAssignedSuccess";
+    private static final String HEADER_STEP_SAVING_ERROR = "plugin_dashboard_barcode_stepSavingError";
+    private static final String HEADER_STEP_NONE_CLOSABLE = "plugin_dashboard_barcode_stepNoneToClose";
+    private static final String HEADER_STEP_CLOSING_ERROR = "plugin_dashboard_barcode_stepClosingError";
+    private static final String HEADER_STEP_CLOSING_SUCCESS = "plugin_dashboard_barcode_stepClosingSuccess";
+    private static final String HEADER_RELOCATION = "plugin_dashboard_barcode_relocatedTo";
+
     @Getter
-    private String title = "intranda_dashboard_barcode";
+    private String title = PLUGIN_NAME;
 
     @Getter
     private PluginType type = PluginType.Dashboard;
     
     @Getter
     private String guiPath = "/uii/plugin_dashboard_barcode.xhtml";
-    
-    @Getter
-    private String value;
 
     private XMLConfiguration pluginConfig;
 
@@ -67,21 +73,14 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private User currentUser = Helper.getCurrentUser();
 
-    @Setter
-    private List<String> choices;
-
     @Getter
+    @Setter
     private String action = ACTION_TAKE_NEW_TASK;
     @Getter
     private String location = "";
     @Getter
     private String barcode = "";
 
-
-    public void setAction(String action) {
-        log.debug("setting up action with " + action);
-        this.action = action;
-    }
 
     public void setLocation(String location) {
         // location is set after action, hence we can use action's value to control
@@ -93,8 +92,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     public void setBarcode(String barcode) {
         log.debug("setting up barcode with " + barcode);
-        // TODO: validate barcode
-        this.barcode = barcode;
+        if (StringUtils.isNotBlank(barcode)) {
+            this.barcode = barcode;
+        }
     }
 
     /**
@@ -102,7 +102,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
      */
     public BarcodeDashboardPlugin() {
         log.info("Barcode dashboard plugin started");
-        value = ConfigPlugins.getPluginConfig(title).getString("value", "default value");
         pluginConfig = ConfigPlugins.getPluginConfig(PLUGIN_NAME);
     }   
 
@@ -156,11 +155,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     public void execute() {
-        // get process title based on the input barcode
         Process process = ProcessManager.getProcessByExactTitle(barcode);
         if (process == null) {
-            String headerError = "plugin_dashboard_barcode_processNotFoundError";
-            printMessage(headerError, "", "...", LogType.ERROR);
+            printMessage(HEADER_PROCESS_NOT_FOUND, "", "...", LogType.ERROR);
             return;
         }
 
@@ -183,7 +180,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     private void takeNewTask(Process process) {
-        // check if there is any task available for the user
+        // get all available tasks for the current user
         List<Step> availableSteps = getAvailableTasks(process);
 
         // assign the task(s) to the current user
@@ -194,7 +191,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private List<Step> getAvailableTasks(Process process) {
         List<Step> results = new ArrayList<>();
-        //        Step firstOpenStep = process.getFirstOpenStep();
         List<Step> steps = process.getSchritteList();
         for (Step step : steps) {
             if (isStepAvailableForUser(step, currentUser)) {
@@ -203,8 +199,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
 
         if (results.isEmpty()) {
-            String header = "plugin_dashboard_barcode_noStepAvailable";
-            printMessage(header, "", ".", LogType.WARN);
+            printMessage(HEADER_STEP_NONE_AVAILABLE, "", ".", LogType.WARN);
         }
 
         return results;
@@ -213,7 +208,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private boolean isStepAvailableForUser(Step step, User user) {
         // check step status
         StepStatus status = step.getBearbeitungsstatusEnum();
-        log.debug("step '" + step.getTitel() + "' has status '" + status + "'.");
         if (!StepStatus.OPEN.equals(status)) {
             return false;
         }
@@ -222,9 +216,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         User stepUser = step.getBearbeitungsbenutzer();
         if (stepUser != null) {
             // task already taken
-            //            log.debug("this step is already taken by the user: " + stepUser.getNachVorname());
-            String headerError = "plugin_dashboard_barcode_stepAlreadyAssignedError";
-            printMessage(headerError, stepUser.getNachVorname(), LogType.ERROR);
+            printMessage(HEADER_STEP_ASSIGNMENT_ERROR, stepUser.getNachVorname(), LogType.ERROR);
             return false;
         }
 
@@ -244,7 +236,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private void assignStepToUser(Step step, User user) {
         log.debug("the step '" + step.getTitel() + "' will be assigned to user '" + user.getNachVorname());
-        log.debug("before assignment the step has user: " + step.getBearbeitungsbenutzer());
+
         step.setBearbeitungsbenutzer(user);
         step.setBearbeitungsstatusEnum(StepStatus.INWORK);
         step.setEditTypeEnum(StepEditType.MANUAL_SINGLE);
@@ -260,36 +252,27 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             HistoryManager.addHistory(step.getBearbeitungsbeginn(), step.getReihenfolge().doubleValue(),
                     step.getTitel(), HistoryEventType.stepInWork.getValue(), step.getProzess().getId());
 
-            String header = "plugin_dashboard_barcode_stepAssignedSuccess";
-            printMessage(header, step.getTitel(), LogType.INFO);
+            printMessage(HEADER_STEP_ASSIGNMENT_SUCCESS, step.getTitel(), LogType.INFO);
 
         } catch (DAOException e) {
-            String headerError = "plugin_dashboard_barcode_savingStepError";
-            printMessage(headerError, step.getTitel(), LogType.ERROR);
+            printMessage(HEADER_STEP_SAVING_ERROR, step.getTitel(), LogType.ERROR);
             e.printStackTrace();
         }
-
-        log.debug("after assignment the step has user: " + step.getBearbeitungsbenutzer());
     }
 
     private void finishOldTask(Process process) {
         // check if there is any task that is ready to finish
         List<Step> allSteps = process.getSchritte();
-        log.debug("process has " + allSteps.size() + " steps");
         boolean anyStepClosed = false;
         for (Step step : allSteps) {
             if (isStepCloseableForUser(step, currentUser)) {
-                log.debug("step ready to close: " + step.getTitel());
-                log.debug("before closing, this step has status " + step.getBearbeitungsstatusEnum());
                 closeStep(step, currentUser);
                 anyStepClosed = true;
-                log.debug("after closing, this step has status " + step.getBearbeitungsstatusEnum());
             }
         }
 
         if (!anyStepClosed) {
-            String header = "plugin_dashboard_barcode_noStepToClose";
-            printMessage(header, "", ".", LogType.WARN);
+            printMessage(HEADER_STEP_NONE_CLOSABLE, "", ".", LogType.WARN);
         }
     }
 
@@ -297,18 +280,16 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         User stepUser = step.getBearbeitungsbenutzer();
         return stepUser != null
                 && StepStatus.INWORK.equals(step.getBearbeitungsstatusEnum())
-                && user.equals(stepUser);
+                && stepUser.equals(user);
     }
 
     private void closeStep(Step step, User user) {
         try {
             CloseStepHelper.closeStep(step, user);
-            String header = "plugin_dashboard_barcode_stepClosedSuccess";
-            printMessage(header, step.getTitel(), LogType.INFO);
+            printMessage(HEADER_STEP_CLOSING_SUCCESS, step.getTitel(), LogType.INFO);
 
         } catch (Exception e) {
-            String headerError = "plugin_dashboard_barcode_closingStepError";
-            printMessage(headerError, step.getTitel(), LogType.ERROR);
+            printMessage(HEADER_STEP_CLOSING_ERROR, step.getTitel(), LogType.ERROR);
             e.printStackTrace();
         }
     }
@@ -319,7 +300,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
         // assign the task(s) to the current user
         for (Step step : availableSteps) {
-            log.debug("taking up and closing step: " + step.getTitel());
+            log.debug("assigning and closing step: " + step.getTitel());
             // TODO: error handling
             assignStepToUser(step, currentUser);
             closeStep(step, currentUser);
@@ -371,8 +352,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private boolean addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
-        String header = "plugin_dashboard_barcode_relocatedTo";
-        String message = getMessageToPrint(header, ": ", location);
+        String message = getMessageToPrint(HEADER_RELOCATION, ": ", location);
         printMessage(message, LogType.INFO);
 
         // add journal entry
@@ -412,13 +392,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private String getMessageToPrint(String header, String separator, String text) {
         return Helper.getTranslation(header) + separator + text;
-    }
-
-    public List<String> getChoices() {
-        String choice1 = "plugin_dashboard_barcode_takeOrFinishTask";
-        String choice2 = "plugin_dashboard_barcode_takeAndFinishTask";
-        String choice3 = "plugin_dashboard_barcode_changeLocationOnly";
-        return Arrays.asList(choice1, choice2, choice3).stream().map(Helper::getTranslation).collect(Collectors.toList());
     }
 
 }
