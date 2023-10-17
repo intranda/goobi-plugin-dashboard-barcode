@@ -157,9 +157,10 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     public void execute() {
         // get process title based on the input barcode
-        Process process = getProcess(barcode);
+        Process process = ProcessManager.getProcessByExactTitle(barcode);
         if (process == null) {
-            log.debug("process not found, aborting...");
+            String headerError = "plugin_dashboard_barcode_processNotFoundError";
+            printMessage(headerError, "", "...", LogType.ERROR);
             return;
         }
 
@@ -179,34 +180,16 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             default:
                 // no other options
         }
-
-    }
-
-    private Process getProcess(String barcode) {
-        //        String processTitle = getProcessTitle(barcode);
-        Process process = ProcessManager.getProcessByExactTitle(barcode);
-
-        return process;
-    }
-
-    private String getProcessTitle(String barcode) {
-        // for process title that are typed into the text input
-        return barcode;
     }
 
     private void takeNewTask(Process process) {
         // check if there is any task available for the user
         List<Step> availableSteps = getAvailableTasks(process);
-        for (Step availableStep : availableSteps) {
-            log.debug("availableStep = " + availableStep.getTitel());
-        }
+
         // assign the task(s) to the current user
         for (Step step : availableSteps) {
             assignStepToUser(step, currentUser);
         }
-
-        // TODO: print message
-
     }
 
     private List<Step> getAvailableTasks(Process process) {
@@ -217,6 +200,11 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             if (isStepAvailableForUser(step, currentUser)) {
                 results.add(step);
             }
+        }
+
+        if (results.isEmpty()) {
+            String header = "plugin_dashboard_barcode_noStepAvailable";
+            printMessage(header, "", ".", LogType.WARN);
         }
 
         return results;
@@ -234,7 +222,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         User stepUser = step.getBearbeitungsbenutzer();
         if (stepUser != null) {
             // task already taken
-            log.debug("this step is already taken by the user: " + stepUser.getNachVorname());
+            //            log.debug("this step is already taken by the user: " + stepUser.getNachVorname());
+            String headerError = "plugin_dashboard_barcode_stepAlreadyAssignedError";
+            printMessage(headerError, stepUser.getNachVorname(), LogType.ERROR);
             return false;
         }
 
@@ -264,13 +254,18 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             step.setBearbeitungsbeginn(date);
         }
 
-        HistoryManager.addHistory(step.getBearbeitungsbeginn(), step.getReihenfolge().doubleValue(),
-                step.getTitel(), HistoryEventType.stepInWork.getValue(), step.getProzess().getId());
-
         try {
             StepManager.saveStep(step);
+
+            HistoryManager.addHistory(step.getBearbeitungsbeginn(), step.getReihenfolge().doubleValue(),
+                    step.getTitel(), HistoryEventType.stepInWork.getValue(), step.getProzess().getId());
+
+            String header = "plugin_dashboard_barcode_stepAssignedSuccess";
+            printMessage(header, step.getTitel(), LogType.INFO);
+
         } catch (DAOException e) {
-            // TODO Auto-generated catch block
+            String headerError = "plugin_dashboard_barcode_savingStepError";
+            printMessage(headerError, step.getTitel(), LogType.ERROR);
             e.printStackTrace();
         }
 
@@ -281,14 +276,20 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         // check if there is any task that is ready to finish
         List<Step> allSteps = process.getSchritte();
         log.debug("process has " + allSteps.size() + " steps");
+        boolean anyStepClosed = false;
         for (Step step : allSteps) {
             if (isStepCloseableForUser(step, currentUser)) {
                 log.debug("step ready to close: " + step.getTitel());
                 log.debug("before closing, this step has status " + step.getBearbeitungsstatusEnum());
-                // TODO: close this step
                 closeStep(step, currentUser);
+                anyStepClosed = true;
                 log.debug("after closing, this step has status " + step.getBearbeitungsstatusEnum());
             }
+        }
+
+        if (!anyStepClosed) {
+            String header = "plugin_dashboard_barcode_noStepToClose";
+            printMessage(header, "", ".", LogType.WARN);
         }
     }
 
@@ -300,15 +301,22 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     private void closeStep(Step step, User user) {
-        CloseStepHelper.getInstance().closeStep(step, user);
+        try {
+            CloseStepHelper.closeStep(step, user);
+            String header = "plugin_dashboard_barcode_stepClosedSuccess";
+            printMessage(header, step.getTitel(), LogType.INFO);
+
+        } catch (Exception e) {
+            String headerError = "plugin_dashboard_barcode_closingStepError";
+            printMessage(headerError, step.getTitel(), LogType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     private void takeAndFinishTask(Process process) {
         // check if there is any task available for the user
         List<Step> availableSteps = getAvailableTasks(process);
-        for (Step availableStep : availableSteps) {
-            log.debug("availableStep = " + availableStep.getTitel());
-        }
+
         // assign the task(s) to the current user
         for (Step step : availableSteps) {
             log.debug("taking up and closing step: " + step.getTitel());
@@ -363,13 +371,47 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private boolean addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
-        // TODO: translation
-        String message = "Relocated to: " + location;
+        String header = "plugin_dashboard_barcode_relocatedTo";
+        String message = getMessageToPrint(header, ": ", location);
+        printMessage(message, LogType.INFO);
 
         // add journal entry
         Helper.addMessageToProcessJournal(process.getId(), LogType.INFO, message, currentUser.getNachVorname());
 
         return true;
+    }
+
+    private void printMessage(String header, String text, LogType logType) {
+        printMessage(header, ": ", text, logType);
+    }
+
+    private void printMessage(String header, String separator, String text, LogType logType) {
+        String message = getMessageToPrint(header, separator, text);
+        printMessage(message, logType);
+    }
+
+    private void printMessage(String message, LogType logType) {
+        switch (logType) {
+            case ERROR:
+                log.error(message);
+                Helper.setFehlerMeldung(message);
+                break;
+            case DEBUG:
+                log.debug(message);
+                break;
+            case WARN:
+                log.warn(message);
+                Helper.setFehlerMeldung(message);
+                break;
+            default: // INFO
+                log.info(message);
+                Helper.setMeldung(message);
+                break;
+        }
+    }
+
+    private String getMessageToPrint(String header, String separator, String text) {
+        return Helper.getTranslation(header) + separator + text;
     }
 
     public List<String> getChoices() {
