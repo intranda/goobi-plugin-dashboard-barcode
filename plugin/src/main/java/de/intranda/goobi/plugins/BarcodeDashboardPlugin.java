@@ -21,11 +21,17 @@ import org.goobi.production.plugin.interfaces.IDashboardPlugin;
 import de.intranda.digiverso.model.helper.DashboardHelperBarcode;
 import de.intranda.digiverso.model.helper.DashboardHelperTasks;
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.helper.CloseStepHelper;
 import de.sub.goobi.helper.FacesContextHelper;
 import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.enums.HistoryEventType;
+import de.sub.goobi.helper.enums.StepEditType;
 import de.sub.goobi.helper.enums.StepStatus;
+import de.sub.goobi.helper.exceptions.DAOException;
+import de.sub.goobi.persistence.managers.HistoryManager;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
+import de.sub.goobi.persistence.managers.StepManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -195,6 +201,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             log.debug("availableStep = " + availableStep.getTitel());
         }
         // assign the task(s) to the current user
+        for (Step step : availableSteps) {
+            assignStepToUser(step, currentUser);
+        }
 
         // print message
     }
@@ -242,15 +251,42 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return false;
     }
 
+    private void assignStepToUser(Step step, User user) {
+        log.debug("the step '" + step.getTitel() + "' will be assigned to user '" + user.getNachVorname());
+        log.debug("before assignment the step has user: " + step.getBearbeitungsbenutzer());
+        step.setBearbeitungsbenutzer(user);
+        step.setBearbeitungsstatusEnum(StepStatus.INWORK);
+        step.setEditTypeEnum(StepEditType.MANUAL_SINGLE);
+        Date date = new Date();
+        step.setBearbeitungszeitpunkt(date);
+        if (step.getBearbeitungsbeginn() == null) {
+            step.setBearbeitungsbeginn(date);
+        }
+
+        HistoryManager.addHistory(step.getBearbeitungsbeginn(), step.getReihenfolge().doubleValue(),
+                step.getTitel(), HistoryEventType.stepInWork.getValue(), step.getProzess().getId());
+
+        try {
+            StepManager.saveStep(step);
+        } catch (DAOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        log.debug("after assignment the step has user: " + step.getBearbeitungsbenutzer());
+    }
+
     private void finishOldTask(Process process) {
         // check if there is any task that is ready to finish
         List<Step> allSteps = process.getSchritte();
-        log.debug("proces shas " + allSteps.size() + " steps");
+        log.debug("process has " + allSteps.size() + " steps");
         for (Step step : allSteps) {
             if (isStepCloseableForUser(step, currentUser)) {
                 log.debug("step ready to close: " + step.getTitel());
-                log.debug("this step has status " + step.getBearbeitungsstatusEnum());
+                log.debug("before closing, this step has status " + step.getBearbeitungsstatusEnum());
                 // TODO: close this step
+                closeStep(step, currentUser);
+                log.debug("after closing, this step has status " + step.getBearbeitungsstatusEnum());
             }
         }
     }
@@ -260,6 +296,10 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return stepUser != null
                 && StepStatus.INWORK.equals(step.getBearbeitungsstatusEnum())
                 && user.equals(stepUser);
+    }
+
+    private void closeStep(Step step, User user) {
+        CloseStepHelper.getInstance().closeStep(step, user);
     }
 
     private void takeAndFinishTask(Process process) {
