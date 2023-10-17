@@ -38,7 +38,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private static final String PLUGIN_NAME = "intranda_dashboard_barcode";
     private static final String ACTION_TAKE_NEW_TASK = "NEW";
     private static final String ACTION_FINISH_OLD_TASK = "DONE";
-    private static final String ACTION_BOTH = "BOTH";
+    private static final String ACTION_TAKE_NEW_AND_FINISH = "BOTH";
     private static final String ACTION_RELOCATION = "RELOC";
     private static final String PROPERTY_PROCESS_LOCATION = "process_location";
 
@@ -158,16 +158,16 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
 
         switch (action) {
-            case "NEW":
+            case ACTION_TAKE_NEW_TASK:
                 takeNewTask(process);
                 break;
-            case "DONE":
+            case ACTION_FINISH_OLD_TASK:
                 finishOldTask(process);
                 break;
-            case "BOTH":
+            case ACTION_TAKE_NEW_AND_FINISH:
                 takeAndFinishTask(process);
                 break;
-            case "RELOC":
+            case ACTION_RELOCATION:
                 changeLocation(process);
                 break;
             default:
@@ -204,9 +204,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         //        Step firstOpenStep = process.getFirstOpenStep();
         List<Step> steps = process.getSchritteList();
         for (Step step : steps) {
-            StepStatus stepStatus = step.getBearbeitungsstatusEnum();
-            log.debug("Step '" + step.getTitel() + "' has status '" + stepStatus + "'.");
-            if (StepStatus.OPEN.equals(stepStatus) && isStepAvailableForUser(step, currentUser)) {
+            if (isStepAvailableForUser(step, currentUser)) {
                 results.add(step);
             }
         }
@@ -215,6 +213,14 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     private boolean isStepAvailableForUser(Step step, User user) {
+        // check step status
+        StepStatus status = step.getBearbeitungsstatusEnum();
+        log.debug("step '" + step.getTitel() + "' has status '" + status + "'.");
+        if (!StepStatus.OPEN.equals(status)) {
+            return false;
+        }
+
+        // check if any user was already assigned to this step
         User stepUser = step.getBearbeitungsbenutzer();
         if (stepUser != null) {
             // task already taken
@@ -253,7 +259,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         User stepUser = step.getBearbeitungsbenutzer();
         return stepUser != null
                 && StepStatus.INWORK.equals(step.getBearbeitungsstatusEnum())
-                && currentUser.equals(stepUser);
+                && user.equals(stepUser);
     }
 
     private void takeAndFinishTask(Process process) {
