@@ -205,7 +205,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             assignStepToUser(step, currentUser);
         }
 
-        // print message
+        // TODO: print message
+
     }
 
     private List<Step> getAvailableTasks(Process process) {
@@ -303,22 +304,18 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     private void takeAndFinishTask(Process process) {
-        boolean success = takeTask(process) && finishTask(process);
-    }
-
-    private boolean takeTask(Process process) {
-        log.debug("taking a new task");
-        List<Step> steps = process.getSchritteList();
-
-        // check if any step can be taken
-
-        return true;
-    }
-
-    private boolean finishTask(Process process) {
-        log.debug("finishing a task");
-
-        return true;
+        // check if there is any task available for the user
+        List<Step> availableSteps = getAvailableTasks(process);
+        for (Step availableStep : availableSteps) {
+            log.debug("availableStep = " + availableStep.getTitel());
+        }
+        // assign the task(s) to the current user
+        for (Step step : availableSteps) {
+            log.debug("taking up and closing step: " + step.getTitel());
+            // TODO: error handling
+            assignStepToUser(step, currentUser);
+            closeStep(step, currentUser);
+        }
     }
 
     private boolean changeLocation(Process process) {
