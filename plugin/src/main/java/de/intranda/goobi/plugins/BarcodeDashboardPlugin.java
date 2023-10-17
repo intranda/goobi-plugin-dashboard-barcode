@@ -81,7 +81,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     @Getter
     private String barcode = "";
 
-
     public void setLocation(String location) {
         // location is set after action, hence we can use action's value to control
         if (ACTION_RELOCATION.equals(action)) {
@@ -234,7 +233,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return false;
     }
 
-    private void assignStepToUser(Step step, User user) {
+    private boolean assignStepToUser(Step step, User user) {
         log.debug("the step '" + step.getTitel() + "' will be assigned to user '" + user.getNachVorname());
 
         step.setBearbeitungsbenutzer(user);
@@ -254,9 +253,12 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
             printMessage(HEADER_STEP_ASSIGNMENT_SUCCESS, step.getTitel(), LogType.INFO);
 
+            return true;
+
         } catch (DAOException e) {
             printMessage(HEADER_STEP_SAVING_ERROR, step.getTitel(), LogType.ERROR);
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -266,8 +268,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         boolean anyStepClosed = false;
         for (Step step : allSteps) {
             if (isStepCloseableForUser(step, currentUser)) {
-                closeStep(step, currentUser);
-                anyStepClosed = true;
+                anyStepClosed = closeStep(step, currentUser) || anyStepClosed;
             }
         }
 
@@ -283,14 +284,16 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
                 && stepUser.equals(user);
     }
 
-    private void closeStep(Step step, User user) {
+    private boolean closeStep(Step step, User user) {
         try {
             CloseStepHelper.closeStep(step, user);
             printMessage(HEADER_STEP_CLOSING_SUCCESS, step.getTitel(), LogType.INFO);
+            return true;
 
         } catch (Exception e) {
             printMessage(HEADER_STEP_CLOSING_ERROR, step.getTitel(), LogType.ERROR);
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -301,27 +304,25 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         // assign the task(s) to the current user
         for (Step step : availableSteps) {
             log.debug("assigning and closing step: " + step.getTitel());
-            // TODO: error handling
-            assignStepToUser(step, currentUser);
-            closeStep(step, currentUser);
+            // use boolean chain to prevent closeStep from running when assignStepToUser did not succeed
+            // the variable b here is only needed for syntax
+            boolean b = assignStepToUser(step, currentUser) && closeStep(step, currentUser);
         }
     }
 
-    private boolean changeLocation(Process process) {
+    private void changeLocation(Process process) {
         log.debug("changing location to " + location);
-
-        return saveLocationAsProperty(process, location) && addJournalEntryForLocationChange(process, location);
+        saveLocationAsProperty(process, location);
+        addJournalEntryForLocationChange(process, location);
     }
 
-    private boolean saveLocationAsProperty(Process process, String location) {
+    private void saveLocationAsProperty(Process process, String location) {
         // get the Processproperty object
         Processproperty property = getProcesspropertyObject(process.getId(), PROPERTY_PROCESS_LOCATION, true);
         property.setWert(location);
 
         // save location to this Processproperty object
         PropertyManager.saveProcessProperty(property);
-
-        return true;
     }
 
     /**
@@ -350,15 +351,13 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return property;
     }
 
-    private boolean addJournalEntryForLocationChange(Process process, String location) {
+    private void addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
         String message = getMessageToPrint(HEADER_RELOCATION, ": ", location);
         printMessage(message, LogType.INFO);
 
         // add journal entry
         Helper.addMessageToProcessJournal(process.getId(), LogType.INFO, message, currentUser.getNachVorname());
-
-        return true;
     }
 
     private void printMessage(String header, String text, LogType logType) {
