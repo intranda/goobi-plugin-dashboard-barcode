@@ -17,7 +17,6 @@ import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IDashboardPlugin;
 
-import de.intranda.digiverso.model.helper.DashboardHelperBarcode;
 import de.intranda.digiverso.model.helper.DashboardHelperTasks;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.CloseStepHelper;
@@ -41,12 +40,14 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     private static final String PLUGIN_NAME = "intranda_dashboard_barcode";
+    // optional actions
     private static final String ACTION_TAKE_NEW_TASK = "NEW";
     private static final String ACTION_FINISH_OLD_TASK = "DONE";
     private static final String ACTION_TAKE_NEW_AND_FINISH = "BOTH";
     private static final String ACTION_RELOCATION = "RELOC";
+    // name of the process property used to hold the location
     private static final String PROPERTY_PROCESS_LOCATION = "process_location";
-
+    // configuration entries in messages_*.properties for different header messages to print
     private static final String HEADER_PROCESS_NOT_FOUND = "plugin_dashboard_barcode_processNotFoundError";
     private static final String HEADER_STEP_NONE_AVAILABLE = "plugin_dashboard_barcode_stepNoneAvailable";
     private static final String HEADER_STEP_ASSIGNMENT_ERROR = "plugin_dashboard_barcode_stepAlreadyAssignedError";
@@ -69,7 +70,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private XMLConfiguration pluginConfig;
 
     private transient DashboardHelperTasks tasksHelper;
-    private transient DashboardHelperBarcode barcodeHelper;
 
     private User currentUser = Helper.getCurrentUser();
 
@@ -77,9 +77,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     @Setter
     private String action = ACTION_TAKE_NEW_TASK;
     @Getter
-    private String location = "";
+    private String location = ""; // target location for relocation, which will only be used when the option "relocation" is selected
     @Getter
-    private String barcode = "";
+    private String barcode = ""; // barcode is actually the title of the Goobi process
 
     public void setLocation(String location) {
         // location is set after action, hence we can use action's value to control
@@ -90,8 +90,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     }
 
     public void setBarcode(String barcode) {
-        log.debug("setting up barcode with " + barcode);
         if (StringUtils.isNotBlank(barcode)) {
+            log.debug("setting up barcode with " + barcode);
             this.barcode = barcode;
         }
     }
@@ -104,19 +104,12 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         pluginConfig = ConfigPlugins.getPluginConfig(PLUGIN_NAME);
     }   
 
+    /* ======= Methods used for the DashboardHelperTasks part ======= */
     public DashboardHelperTasks getTasksHelper() {
         if (tasksHelper == null) {
             tasksHelper = new DashboardHelperTasks(pluginConfig);
         }
         return tasksHelper;
-    }
-
-    public DashboardHelperBarcode getBarcodeHelper() {
-        log.info("getting barcodeHelper");
-        if (barcodeHelper == null) {
-            barcodeHelper = new DashboardHelperBarcode(pluginConfig);
-        }
-        return barcodeHelper;
     }
 
     public String getFormattedDate(Date date) {
@@ -153,6 +146,10 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return dateFormat;
     }
 
+    /* ======= Methods used for the barcode reader part ======= */
+    /**
+     * main method triggered by a click on the button for execution
+     */
     public void execute() {
         Process process = ProcessManager.getProcessByExactTitle(barcode);
         if (process == null) {
@@ -178,6 +175,11 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * method handling the option "take new tasks"
+     * 
+     * @param process Goobi process
+     */
     private void takeNewTask(Process process) {
         // get all available tasks for the current user
         List<Step> availableSteps = getAvailableTasks(process);
@@ -188,6 +190,12 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * get a list of available Goobi steps that can be assigned to the current user
+     * 
+     * @param process Goobi process
+     * @return a list of Goobi steps which can be assigned to the current user
+     */
     private List<Step> getAvailableTasks(Process process) {
         List<Step> results = new ArrayList<>();
         List<Step> steps = process.getSchritteList();
@@ -204,6 +212,13 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return results;
     }
 
+    /**
+     * check if the Goobi step can be assigned to the given user
+     * 
+     * @param step Goobi step
+     * @param user Goobi user
+     * @return true if the step is open and not assigned yet and the user has right to accept it; false otherwise
+     */
     private boolean isStepAvailableForUser(Step step, User user) {
         // check step status
         StepStatus status = step.getBearbeitungsstatusEnum();
@@ -233,8 +248,15 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return false;
     }
 
+    /**
+     * assign a Goobi step to a Goobi user
+     * 
+     * @param step Goobi step
+     * @param user Goobi user
+     * @return true if the step is successfully assigned to the user, false if any error occurred
+     */
     private boolean assignStepToUser(Step step, User user) {
-        log.debug("the step '" + step.getTitel() + "' will be assigned to user '" + user.getNachVorname());
+        log.debug("the step '" + step.getTitel() + "' will be assigned to user: " + user.getNachVorname());
 
         step.setBearbeitungsbenutzer(user);
         step.setBearbeitungsstatusEnum(StepStatus.INWORK);
@@ -262,6 +284,11 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * method handling the option "finish assigned tasks"
+     * 
+     * @param process Goobi process
+     */
     private void finishOldTask(Process process) {
         // check if there is any task that is ready to finish
         List<Step> allSteps = process.getSchritte();
@@ -277,6 +304,13 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * check if the Goobi step can be closed by the given user
+     * 
+     * @param step Goobi step
+     * @param user Goobi user
+     * @return true if the step has been assigned to the given user and it has status INWORK
+     */
     private boolean isStepCloseableForUser(Step step, User user) {
         User stepUser = step.getBearbeitungsbenutzer();
         return stepUser != null
@@ -284,6 +318,13 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
                 && stepUser.equals(user);
     }
 
+    /**
+     * close the Goobi step
+     * 
+     * @param step Goobi step
+     * @param user Goobi user
+     * @return true if the step is successfully closed, false if any exception occurred
+     */
     private boolean closeStep(Step step, User user) {
         try {
             CloseStepHelper.closeStep(step, user);
@@ -297,8 +338,13 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * method handling the option "take new tasks and finish them immediately"
+     * 
+     * @param process Goobi process
+     */
     private void takeAndFinishTask(Process process) {
-        // check if there is any task available for the user
+        // get all available tasks for the current user
         List<Step> availableSteps = getAvailableTasks(process);
 
         // assign the task(s) to the current user
@@ -310,12 +356,23 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * method handling the option "relocation"
+     * 
+     * @param process Goobi process
+     */
     private void changeLocation(Process process) {
         log.debug("changing location to " + location);
         saveLocationAsProperty(process, location);
         addJournalEntryForLocationChange(process, location);
     }
 
+    /**
+     * save the input location as a process property
+     * 
+     * @param process Goobi process
+     * @param location location that shall be saved as a process property
+     */
     private void saveLocationAsProperty(Process process, String location) {
         // get the Processproperty object
         Processproperty property = getProcesspropertyObject(process.getId(), PROPERTY_PROCESS_LOCATION, true);
@@ -351,6 +408,12 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         return property;
     }
 
+    /**
+     * add a journal entry for the change of location
+     * 
+     * @param process Goobi process
+     * @param location new location
+     */
     private void addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
         String message = getMessageToPrint(HEADER_RELOCATION, ": ", location);
@@ -360,15 +423,36 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         Helper.addMessageToProcessJournal(process.getId(), LogType.INFO, message, currentUser.getNachVorname());
     }
 
+    /**
+     * print messages to the log as well as to the page
+     * 
+     * @param header message header whose translation shall be used
+     * @param text message that shall be printed without translation, normally this is something that does not change w.r.t. locales e.g. a file name
+     * @param logType LogType
+     */
     private void printMessage(String header, String text, LogType logType) {
         printMessage(header, ": ", text, logType);
     }
 
+    /**
+     * print messages to the log as well as to the page
+     * 
+     * @param header message header whose translation shall be used
+     * @param separator that shall be used to combine the translated header and the text
+     * @param text message that shall be printed without translation, normally this is something that does not change w.r.t. locales e.g. a file name
+     * @param logType LogType
+     */
     private void printMessage(String header, String separator, String text, LogType logType) {
         String message = getMessageToPrint(header, separator, text);
         printMessage(message, logType);
     }
 
+    /**
+     * print messages to the log as well as to the page
+     * 
+     * @param message message that shall be printed
+     * @param logType LogType
+     */
     private void printMessage(String message, LogType logType) {
         switch (logType) {
             case ERROR:
@@ -389,6 +473,14 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
+    /**
+     * get the message that shall be used to print
+     * 
+     * @param header message header whose translation shall be used
+     * @param separator that shall be used to combine the translated header and the text
+     * @param text message that shall be printed without translation, normally this is something that does not change w.r.t. locales e.g. a file name
+     * @return the translated header and the text combined by the separator
+     */
     private String getMessageToPrint(String header, String separator, String text) {
         return Helper.getTranslation(header) + separator + text;
     }
