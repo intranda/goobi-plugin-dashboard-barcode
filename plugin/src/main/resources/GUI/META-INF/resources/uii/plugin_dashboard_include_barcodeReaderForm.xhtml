@@ -31,11 +31,11 @@
 								<!-- SELECT ONE ROW -->
 								<div class="row">
 									<div class="col-12 col-md-3">
-										<intranda:formLabel label="#{msgs.plugin_dashboard_barcode_actions}" 
+										<intranda:formLabel label="#{msgs.auswahl}" 
 											labelFor="actionOptions"  labelRequired="false"/>
 									</div>
 							
-									<!-- SELECT ONE -->
+									<!-- SELECT ONE ACTION -->
 									<div class="col-12 col-md-9">
 										<h:selectOneRadio
 											id="actionOptions"
@@ -53,12 +53,9 @@
 											<f:selectItem
 												itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
 												itemValue="RELOC" />
-										</h:selectOneRadio>
-										<!-- 
-										<intranda:formHelp content="helpProcessDefaultSortOrder" msgFor="processDefaultSortOrder" />
-										-->
+										</h:selectOneRadio>				
 									</div>
-									<!-- SELECT ONE -->
+									<!-- // SELECT ONE ACTION -->
 							
 								</div>
 								<!-- // SELECT ONE ROW -->
@@ -66,14 +63,14 @@
 								<!-- INPUT ROW -->
 								<div class="row">
 							
-									<!-- LABEL -->
+									<!-- LABEL LOCATION -->
 									<div class="col-12 col-md-3">
-										<intranda:formLabel label="Standort" 
+										<intranda:formLabel label="#{msgs.standort}" 
 										labelFor="locationField"  labelRequired="false"/>
 									</div>
-									<!-- // LABEL -->
+									<!-- // LABEL LOCATION -->
 							
-									<!-- INPUT -->
+									<!-- INPUT LOCATION -->
 									<div class="col-12 col-md-9">
 										<h:inputText
 											id="locationField"
@@ -82,17 +79,9 @@
 											required="false"
 											readonly="false"
 											tabindex="0">
-											<c:if test="false">
-												<f:passThroughAttribute
-													name="data-gw-focus-on-load"
-													value="false" />
-											</c:if>
 										</h:inputText>
-							
-										<!-- Help messages, inline + warning -->
-										<intranda:formHelp content="Tragen Sie hier den Standort, die Abteilung oder das Gebäude ein, zu dem der Benutzer gehört." msgFor="locationField" />
 									</div>
-									<!-- // INPUT -->
+									<!-- // INPUT LOCATION -->
 							
 								</div>
 								<!-- INPUT ROW -->
@@ -100,14 +89,14 @@
 								<!-- INPUT ROW -->
 								<div class="row">
 							
-									<!-- LABEL -->
+									<!-- LABEL BARCODE -->
 									<div class="col-12 col-md-3">
-										<intranda:formLabel label="Barcode" 
+										<intranda:formLabel label="#{msgs.prozessTitel}" 
 										labelFor="barcodeField"  labelRequired="true"/>
 									</div>
-									<!-- // LABEL -->
+									<!-- // LABEL BARCODE -->
 							
-									<!-- INPUT -->
+									<!-- INPUT BARCODE -->
 									<div class="col-12 col-md-9">
 										<h:inputText
 											id="barcodeField"
@@ -116,33 +105,15 @@
 											required="true"
 											readonly="false"
 											tabindex="0">
-											<c:if test="false">
-												<f:passThroughAttribute
-													name="data-gw-focus-on-load"
-													value="false" />
-											</c:if>
 										</h:inputText>
-							
-										<!-- Help messages, inline + warning -->
-										<intranda:formHelp content="Tragen Sie hier den Barcode ein." msgFor="barcodeField" />
 									</div>
-									<!-- // INPUT -->
+									<!-- // INPUT BARCODE -->
 							
 								</div>
 								<!-- INPUT ROW -->
 			
 								<div class="box__actions">
-							
-									<!-- Cancel -->
-									<a
-										jsf:id="cancelEdition"
-										class="btn btn-blank"
-										jsf:immediate="true"
-										jsf:action="{BenutzerverwaltungForm.cancelEdit}">
-										<h:outputText value="Abbrechen" />
-									</a>
-							
-									<!-- Save => should be the first btn in the form (subit on enter) -->
+									<!-- EXECUTION BUTTON -->
 									<button
 										class="btn btn-success"
 										jsf:id="absenden"
@@ -152,28 +123,8 @@
 										<span>
 											<h:outputText value="#{msgs.plugin_dashboard_barcode_execute}" />
 										</span>
-										<!-- 
-										<f:passThroughAttribute
-											name="data-toggle"
-											value="tooltip" />
-										<f:setPropertyActionListener
-											value="#{step}"
-											target="#{DashboardForm.plugin.currentStep}" />
-										-->
 									</button>
-							
-									<!-- Delete -->
-									<button
-										jsf:id="deleteUser"
-										class="btn btn-hot trigger-delete"
-										onclick="if (!confirm('Soll dieser Eintrag wirklich gelöscht werden?')) return false"
-										jsf:action="{BenutzerverwaltungForm.Loeschen}">
-										<i class="fa fa-trash-o"></i>
-										<span>
-											<h:outputText value="Löschen" />
-										</span>
-									</button>
-							
+									<!-- // EXECUTION BUTTON -->
 								</div>
 							
 						</intranda:box>
