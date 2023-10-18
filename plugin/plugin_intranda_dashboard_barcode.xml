@@ -2,7 +2,9 @@
 
 <config_plugin>
 	
-	<!-- configuration item as sample -->
-	<value>sample value from config</value>
+	<!-- show the last tasks of the user -->
+	<tasks-latestChanges>true</tasks-latestChanges>
+	<!-- number of previous tasks that shall be shown -->
+	<tasks-latestChanges-size>37</tasks-latestChanges-size>
 	
 </config_plugin>
