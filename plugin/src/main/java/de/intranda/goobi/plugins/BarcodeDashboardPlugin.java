@@ -56,7 +56,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private static final String HEADER_STEP_NONE_CLOSABLE = "plugin_dashboard_barcode_stepNoneToClose";
     private static final String HEADER_STEP_CLOSING_ERROR = "plugin_dashboard_barcode_stepClosingError";
     private static final String HEADER_STEP_CLOSING_SUCCESS = "plugin_dashboard_barcode_stepClosingSuccess";
-    private static final String HEADER_RELOCATION = "plugin_dashboard_barcode_relocatedTo";
+    private static final String HEADER_RELOCATION_SUCCESS = "plugin_dashboard_barcode_relocatedTo";
+    private static final String HEADER_RELOCATION_EMPTY_LOCATION_ERROR = "plugin_dashboard_barcode_emptyLocationError";
 
     @Getter
     private String title = PLUGIN_NAME;
@@ -363,6 +364,11 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
      */
     private void changeLocation(Process process) {
         log.debug("changing location to " + location);
+        if (StringUtils.isBlank(location)) {
+            printMessage(HEADER_RELOCATION_EMPTY_LOCATION_ERROR, "", "", LogType.ERROR);
+            return;
+        }
+
         saveLocationAsProperty(process, location);
         addJournalEntryForLocationChange(process, location);
     }
@@ -416,7 +422,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
      */
     private void addJournalEntryForLocationChange(Process process, String location) {
         // prepare a message based on location
-        String message = getMessageToPrint(HEADER_RELOCATION, ": ", location);
+        String message = getMessageToPrint(HEADER_RELOCATION_SUCCESS, ": ", location);
         printMessage(message, LogType.INFO);
 
         // add journal entry
