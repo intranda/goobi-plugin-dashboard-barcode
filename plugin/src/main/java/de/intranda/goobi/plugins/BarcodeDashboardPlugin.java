@@ -227,14 +227,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             return false;
         }
 
-        // check if any user was already assigned to this step
-        User stepUser = step.getBearbeitungsbenutzer();
-        if (stepUser != null) {
-            // task already taken
-            printMessage(HEADER_STEP_ASSIGNMENT_ERROR, stepUser.getNachVorname(), LogType.ERROR);
-            return false;
-        }
-
         // task still available, check settings of user group
         List<Usergroup> stepUserGroups = step.getBenutzergruppen();
         List<Usergroup> userGroups = user.getBenutzergruppen();
