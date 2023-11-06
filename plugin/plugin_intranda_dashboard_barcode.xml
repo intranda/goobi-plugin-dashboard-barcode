@@ -5,4 +5,16 @@
 	<!-- number of previous tasks that shall be shown -->
 	<tasks-latestChanges-size>37</tasks-latestChanges-size>
 	
+	<!-- display the option to accept tasks -->
+	<show-accept-option>true</show-accept-option>
+	​
+	<!-- display the option to finish tasks -->
+	<show-finish-option>true</show-finish-option>
+	​
+	<!-- display the option to accept and finish tasks as one action -->
+	<show-accept-and-finish-option>true</show-accept-and-finish-option>
+	​
+	<!-- display the option to change the location -->
+	<show-change-location-option>true</show-change-location-option>
+	
 </config_plugin>

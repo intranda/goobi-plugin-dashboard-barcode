@@ -41,18 +41,31 @@
 											id="actionOptions"
 											value="#{DashboardForm.plugin.action}"
 											styleClass="select-radio select-radio-horizontal">
-											<f:selectItem
-												itemLabel="#{msgs.plugin_dashboard_barcode_takeNewTask}"
-												itemValue="NEW" />
-											<f:selectItem
-												itemLabel="#{msgs.plugin_dashboard_barcode_finishOldTask}"
-												itemValue="DONE" />
-											<f:selectItem
-												itemLabel="#{msgs.plugin_dashboard_barcode_takeAndFinishTask}"
-												itemValue="BOTH" />
-											<f:selectItem
-												itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
-												itemValue="RELOC" />
+											
+											<c:if test="#{DashboardForm.plugin.showAcceptOption}">
+												<f:selectItem
+													itemLabel="#{msgs.plugin_dashboard_barcode_takeNewTask}"
+													itemValue="NEW" />
+											</c:if>
+								
+											<c:if test="#{DashboardForm.plugin.showFinishOption}">
+												<f:selectItem
+													itemLabel="#{msgs.plugin_dashboard_barcode_finishOldTask}"
+													itemValue="DONE" />														
+											</c:if>
+											
+											<c:if test="#{DashboardForm.plugin.showAcceptAndFinishOption}">
+												<f:selectItem
+													itemLabel="#{msgs.plugin_dashboard_barcode_takeAndFinishTask}"
+													itemValue="BOTH" />											
+											</c:if>
+											
+											<c:if test="#{DashboardForm.plugin.showChangeLocationOption}" >
+												<f:selectItem
+													itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
+													itemValue="RELOC" />											
+											</c:if>
+																					
 										</h:selectOneRadio>				
 									</div>
 									<!-- // SELECT ONE ACTION -->

@@ -81,6 +81,15 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     @Getter
     private String barcode = ""; // barcode is actually the title of the Goobi process
 
+    @Getter
+    private boolean showAcceptOption;
+    @Getter
+    private boolean showFinishOption;
+    @Getter
+    private boolean showAcceptAndFinishOption;
+    @Getter
+    private boolean showChangeLocationOption;
+
     public void setLocation(String location) {
         // location is set after action, hence we can use action's value to control
         if (ACTION_RELOCATION.equals(action)) {
@@ -102,6 +111,11 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     public BarcodeDashboardPlugin() {
         log.info("Barcode dashboard plugin started");
         pluginConfig = ConfigPlugins.getPluginConfig(PLUGIN_NAME);
+
+        showAcceptOption = pluginConfig.getBoolean("show-accept-option", false);
+        showFinishOption = pluginConfig.getBoolean("show-finish-option", false);
+        showAcceptAndFinishOption = pluginConfig.getBoolean("show-accept-and-finish-option", false);
+        showChangeLocationOption = pluginConfig.getBoolean("show-change-location-option", false);
     }   
 
     /* ======= Methods used for the DashboardHelperTasks part ======= */
