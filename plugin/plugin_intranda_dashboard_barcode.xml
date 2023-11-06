@@ -2,8 +2,6 @@
 
 <config_plugin>
 	
-	<!-- show the last tasks of the user -->
-	<tasks-latestChanges>true</tasks-latestChanges>
 	<!-- number of previous tasks that shall be shown -->
 	<tasks-latestChanges-size>37</tasks-latestChanges-size>
 	

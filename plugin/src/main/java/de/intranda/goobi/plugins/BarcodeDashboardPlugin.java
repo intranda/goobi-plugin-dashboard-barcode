@@ -50,7 +50,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     // configuration entries in messages_*.properties for different header messages to print
     private static final String HEADER_PROCESS_NOT_FOUND = "plugin_dashboard_barcode_processNotFoundError";
     private static final String HEADER_STEP_NONE_AVAILABLE = "plugin_dashboard_barcode_stepNoneAvailable";
-    private static final String HEADER_STEP_ASSIGNMENT_ERROR = "plugin_dashboard_barcode_stepAlreadyAssignedError";
     private static final String HEADER_STEP_ASSIGNMENT_SUCCESS = "plugin_dashboard_barcode_stepAssignedSuccess";
     private static final String HEADER_STEP_SAVING_ERROR = "plugin_dashboard_barcode_stepSavingError";
     private static final String HEADER_STEP_NONE_CLOSABLE = "plugin_dashboard_barcode_stepNoneToClose";
