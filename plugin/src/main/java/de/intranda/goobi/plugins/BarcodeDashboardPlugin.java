@@ -145,8 +145,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         //            action = "";
         //        }
         //        action = optionsBean.getActionOfUser(currentUser);
-        action = OptionsBean.getActionOfUser(currentUser);
-        log.debug("action = " + action);
+        //        action = OptionsBean.getActionOfUser(currentUser);
+        //        log.debug("action = " + action);
     }   
 
     /* ======= Methods used for the DashboardHelperTasks part ======= */
@@ -205,8 +205,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         // save action to the user-action map
         //        userLastActionMap.put(currentUser, action);
         //        optionsBean.updateActionMap(currentUser, action);
-        OptionsBean.updateActionMap(currentUser, action);
-        log.debug("last action '" + action + "' saved to user: " + currentUser.getNachVorname());
+
+        //        OptionsBean.updateActionMap(currentUser, action);
+        //        log.debug("last action '" + action + "' saved to user: " + currentUser.getNachVorname());
 
         switch (action) {
             case ACTION_TAKE_NEW_TASK:
