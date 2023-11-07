@@ -26,7 +26,8 @@
 							boxForm="true"
 							boxPadding="false"
 							title="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
-							icon="fa-edit">
+							icon="fa-edit"
+							id="barcodeScannerBox">
 								
 								<!-- SELECT ONE ROW -->
 								<div class="row">
@@ -63,8 +64,13 @@
 											<c:if test="#{DashboardForm.plugin.showChangeLocationOption}" >
 												<f:selectItem
 													itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
-													itemValue="RELOC" />											
+													itemValue="RELOC" />									
 											</c:if>
+											
+											<f:ajax 
+													event="change"
+													execute="actionOptions"
+													render="myform:barcodeScannerBox:barcodeScannerBox" />		
 																					
 										</h:selectOneRadio>				
 									</div>
@@ -74,7 +80,7 @@
 								<!-- // SELECT ONE ROW -->
 								
 								<!-- INPUT ROW -->
-								<div class="row">
+								<h:panelGroup layout="block" class="row" id="locationInput" rendered="#{DashboardForm.plugin.renderLocationInput}">
 							
 									<!-- LABEL LOCATION -->
 									<div class="col-12 col-md-3">
@@ -96,7 +102,7 @@
 									</div>
 									<!-- // INPUT LOCATION -->
 							
-								</div>
+								</h:panelGroup>
 								<!-- INPUT ROW -->
 								
 								<!-- INPUT ROW -->
