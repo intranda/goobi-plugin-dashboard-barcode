@@ -31,6 +31,7 @@ import de.sub.goobi.persistence.managers.ProcessManager;
 import de.sub.goobi.persistence.managers.PropertyManager;
 import de.sub.goobi.persistence.managers.StepManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
@@ -57,17 +58,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private static final String HEADER_RELOCATION_SUCCESS = "plugin_dashboard_barcode_relocatedTo";
     private static final String HEADER_RELOCATION_EMPTY_LOCATION_ERROR = "plugin_dashboard_barcode_emptyLocationError";
 
-    //    private static final Map<User, String> userLastActionMap = new HashMap<>();
-
-    //    @SuppressWarnings("deprecation")
-    //    @ManagedProperty(value = "#{options}")
-    //    private OptionsBean optionsBean = new OptionsBean();
-    //    private OptionsBean optionsBean = OptionsBean.getInstance();
-    //
-    //    public void setOptionsBean(OptionsBean optionsBean) {
-    //        this.optionsBean = optionsBean;
-    //    }
-
     @Getter
     private String title = PLUGIN_NAME;
 
@@ -84,9 +74,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private User currentUser = Helper.getCurrentUser();
 
     @Getter
-    //    @Setter
+    @Setter
     private String action;
-    //    private String action = ACTION_TAKE_NEW_TASK;
     @Getter
     private String location = ""; // target location for relocation, which will only be used when the option "relocation" is selected
     @Getter
@@ -116,14 +105,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         }
     }
 
-    public void setAction(String action) {
-        log.debug("action is set to be: " + action);
-        this.action = action;
-    }
-
     public boolean isRenderLocationInput() {
-        log.debug("getRenderLocationInput is called");
-        log.debug("current action is " + action);
         return ACTION_RELOCATION.equals(this.action);
     }
 
@@ -138,15 +120,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         showFinishOption = pluginConfig.getBoolean("show-finish-option", false);
         showAcceptAndFinishOption = pluginConfig.getBoolean("show-accept-and-finish-option", false);
         showChangeLocationOption = pluginConfig.getBoolean("show-change-location-option", false);
-
-        //        action = userLastActionMap.get(currentUser);
-        //        log.debug("last action = " + action);
-        //        if (action == null) {
-        //            action = "";
-        //        }
-        //        action = optionsBean.getActionOfUser(currentUser);
-        //        action = OptionsBean.getActionOfUser(currentUser);
-        //        log.debug("action = " + action);
     }   
 
     /* ======= Methods used for the DashboardHelperTasks part ======= */
@@ -202,13 +175,6 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             return;
         }
 
-        // save action to the user-action map
-        //        userLastActionMap.put(currentUser, action);
-        //        optionsBean.updateActionMap(currentUser, action);
-
-        //        OptionsBean.updateActionMap(currentUser, action);
-        //        log.debug("last action '" + action + "' saved to user: " + currentUser.getNachVorname());
-
         switch (action) {
             case ACTION_TAKE_NEW_TASK:
                 takeNewTask(process);
@@ -225,6 +191,9 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             default:
                 // no other options
         }
+
+        // reset barcode
+        barcode = "";
     }
 
     /**

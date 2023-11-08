@@ -15,10 +15,9 @@
 
 	<composite:implementation>
 
-		<ui:fragment>
+		<ui:fragment>	
 			<h:form id="myform">
 				<div class="row">
-					
 					<div class="col-sm-12">
 	                
 						<intranda:box
@@ -66,19 +65,19 @@
 													itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
 													itemValue="RELOC" />									
 											</c:if>
-											
+											 
 											<f:ajax 
 													event="change"
 													execute="actionOptions"
-													render="myform:barcodeScannerBox:barcodeScannerBox" />		
-																					
-										</h:selectOneRadio>				
+													render="@form" />		
+																	
+										</h:selectOneRadio>	
 									</div>
 									<!-- // SELECT ONE ACTION -->
 							
 								</div>
 								<!-- // SELECT ONE ROW -->
-								
+															
 								<!-- INPUT ROW -->
 								<h:panelGroup layout="block" class="row" id="locationInput" rendered="#{DashboardForm.plugin.renderLocationInput}">
 							
@@ -142,7 +141,7 @@
 										<i class="fa fa-save"></i>
 										<span>
 											<h:outputText value="#{msgs.plugin_dashboard_barcode_execute}" />
-										</span>
+										</span>										
 									</button>
 									<!-- // EXECUTION BUTTON -->
 								</div>
@@ -153,6 +152,6 @@
 				</div>
 			</h:form>
 		</ui:fragment>
-
+		
 	</composite:implementation>
 </ui:composition>
