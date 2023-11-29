@@ -17,4 +17,8 @@
 	<!-- display the option to change the location -->
 	<show-change-location-option>true</show-change-location-option>
 	
+	<!-- define which filter shall be used to find the processes. Use {BARCODE} 
+	as placeholder for the input field content (e.g. "meta:*:{BARCODE}" ) -->
+	<filter>meta:*:{BARCODE}</filter>
+	
 </config_plugin>

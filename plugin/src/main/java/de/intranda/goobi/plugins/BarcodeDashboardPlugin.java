@@ -15,6 +15,7 @@ import org.goobi.beans.User;
 import org.goobi.beans.Usergroup;
 import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
+import org.goobi.production.flow.statistics.hibernate.FilterHelper;
 import org.goobi.production.plugin.interfaces.IDashboardPlugin;
 
 import de.intranda.digiverso.model.helper.DashboardHelperTasks;
@@ -63,7 +64,7 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
     @Getter
     private PluginType type = PluginType.Dashboard;
-    
+
     @Getter
     private String guiPath = "/uii/plugin_dashboard_barcode.xhtml";
 
@@ -89,6 +90,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     private boolean showAcceptAndFinishOption;
     @Getter
     private boolean showChangeLocationOption;
+
+    private String filter;
 
     public void setLocation(String location) {
         // location is set after action, hence we can use action's value to control
@@ -120,7 +123,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         showFinishOption = pluginConfig.getBoolean("show-finish-option", false);
         showAcceptAndFinishOption = pluginConfig.getBoolean("show-accept-and-finish-option", false);
         showChangeLocationOption = pluginConfig.getBoolean("show-change-location-option", false);
-    }   
+        filter = pluginConfig.getString("filter", "{BARCODE}");
+    }
 
     /* ======= Methods used for the DashboardHelperTasks part ======= */
     public DashboardHelperTasks getTasksHelper() {
@@ -169,9 +173,20 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
      * main method triggered by a click on the button for execution
      */
     public void execute() {
-        Process process = ProcessManager.getProcessByExactTitle(barcode);
+        Process process = null;
+        // try to find the process
+        String sql = FilterHelper.criteriaBuilder(filter.replaceAll("\\{BARCODE\\}", barcode), null, null, null, null, true, false);
+        if (!sql.isEmpty()) {
+            sql = sql + " AND prozesse.istTemplate = false ";
+        }
+        List<Integer> ids = ProcessManager.getIdsForFilter(sql);
+        if (ids != null && ids.size() > 0) {
+            Integer procid = ids.get(0);
+            process = ProcessManager.getProcessById(procid);
+        }
+        //Process process = ProcessManager.getProcessByExactTitle(barcode);
         if (process == null) {
-            printMessage(HEADER_PROCESS_NOT_FOUND, "", "...", LogType.ERROR);
+            printMessage(HEADER_PROCESS_NOT_FOUND, "", "", LogType.ERROR);
             return;
         }
 
