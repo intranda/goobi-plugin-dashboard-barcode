@@ -82,7 +82,6 @@ public class BarcodeBean implements Serializable {
     private String filter;
 
     public BarcodeBean() {
-        System.out.println("bean start");
         XMLConfiguration pluginConfig = ConfigPlugins.getPluginConfig("intranda_dashboard_barcode");
 
         showAcceptOption = pluginConfig.getBoolean("show-accept-option", false);
