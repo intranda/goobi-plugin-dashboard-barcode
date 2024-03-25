@@ -40,6 +40,8 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 @Log4j2
 public class BarcodeDashboardPlugin implements IDashboardPlugin {
 
+    private static final long serialVersionUID = -4944976201867459316L;
+
     private static final String PLUGIN_NAME = "intranda_dashboard_barcode";
     // optional actions
     private static final String ACTION_TAKE_NEW_TASK = "NEW";
@@ -175,16 +177,15 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
     public void execute() {
         Process process = null;
         // try to find the process
-        String sql = FilterHelper.criteriaBuilder(filter.replaceAll("\\{BARCODE\\}", barcode), null, null, null, null, true, false);
+        String sql = FilterHelper.criteriaBuilder(filter.replace("{BARCODE}", barcode), null, null, null, null, true, false);
         if (!sql.isEmpty()) {
             sql = sql + " AND prozesse.istTemplate = false ";
         }
         List<Integer> ids = ProcessManager.getIdsForFilter(sql);
-        if (ids != null && ids.size() > 0) {
+        if (!ids.isEmpty()) {
             Integer procid = ids.get(0);
             process = ProcessManager.getProcessById(procid);
         }
-        //Process process = ProcessManager.getProcessByExactTitle(barcode);
         if (process == null) {
             printMessage(HEADER_PROCESS_NOT_FOUND, "", "", LogType.ERROR);
             return;
@@ -323,7 +324,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
         boolean anyStepClosed = false;
         for (Step step : allSteps) {
             if (isStepCloseableForUser(step, currentUser)) {
-                anyStepClosed = closeStep(step, currentUser) || anyStepClosed;
+                closeStep(step, currentUser);
+                anyStepClosed = true;
             }
         }
 
@@ -380,7 +382,8 @@ public class BarcodeDashboardPlugin implements IDashboardPlugin {
             log.debug("assigning and closing step: " + step.getTitel());
             // use boolean chain to prevent closeStep from running when assignStepToUser did not succeed
             // the variable b here is only needed for syntax
-            boolean b = assignStepToUser(step, currentUser) && closeStep(step, currentUser);
+            assignStepToUser(step, currentUser);
+            closeStep(step, currentUser);
         }
     }
 

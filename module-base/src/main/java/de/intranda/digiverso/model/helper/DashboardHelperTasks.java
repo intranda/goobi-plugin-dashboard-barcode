@@ -75,7 +75,7 @@ public class DashboardHelperTasks {
                 for (Step step : process.getSchritte()) {
                     if (step.getId().equals(Integer.valueOf(stepId))) {
                         currentStep = step;
-                    } else if (currentStep != null && followingStep == null) {
+                    } else if (currentStep != null) {
                         followingStep = step;
                         break;
                     }
@@ -104,6 +104,7 @@ public class DashboardHelperTasks {
         try {
             ProcessManager.saveProcess(currentStep.getProcess());
         } catch (DAOException e) {
+            // do nothing
         }
 
         StepBean bean = Helper.getBeanByClass(StepBean.class);
