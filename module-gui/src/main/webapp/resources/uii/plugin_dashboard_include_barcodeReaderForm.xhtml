@@ -1,0 +1,167 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:x="http://myfaces.apache.org/tomahawk"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG"
+    xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:p="http://primefaces.org/ui">
+
+    <composite:interface>
+    </composite:interface>
+
+    <composite:implementation>
+
+        <ui:fragment>
+            <h:form id="myform">
+                <div class="row">
+                    <div class="col-sm-12">
+
+                        <intranda:box
+                            boxType="action"
+                            boxForm="true"
+                            boxPadding="false"
+                            title="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
+                            icon="fa-edit"
+                            id="barcodeScannerBox">
+
+                            <!-- SELECT ONE ROW -->
+                            <div class="row">
+                                <div class="col-12 col-md-3">
+                                    <intranda:formLabel
+                                        label="#{msgs.auswahl}"
+                                        labelFor="actionOptions"
+                                        labelRequired="false" />
+                                </div>
+
+                                <!-- SELECT ONE ACTION -->
+                                <div class="col-12 col-md-9">
+                                    <h:selectOneRadio
+                                        id="actionOptions"
+                                        value="#{barcodeBean.action}"
+                                        styleClass="select-radio select-radio-horizontal">
+
+                                        <c:if test="#{barcodeBean.showAcceptOption}">
+                                            <f:selectItem
+                                                itemLabel="#{msgs.plugin_dashboard_barcode_takeNewTask}"
+                                                itemValue="NEW" />
+                                        </c:if>
+                                        <c:if test="#{barcodeBean.showFinishOption}">
+                                            <f:selectItem
+                                                itemLabel="#{msgs.plugin_dashboard_barcode_finishOldTask}"
+                                                itemValue="DONE" />
+                                        </c:if>
+
+                                        <c:if test="#{barcodeBean.showAcceptAndFinishOption}">
+                                            <f:selectItem
+                                                itemLabel="#{msgs.plugin_dashboard_barcode_takeAndFinishTask}"
+                                                itemValue="BOTH" />
+                                        </c:if>
+
+                                        <c:if test="#{barcodeBean.showChangeLocationOption}">
+                                            <f:selectItem
+                                                itemLabel="#{msgs.plugin_dashboard_barcode_changeLocationOnly}"
+                                                itemValue="RELOC" />
+                                        </c:if>
+
+                                        <f:ajax
+                                            event="change"
+                                            execute="actionOptions"
+                                            render="@form" />
+
+                                    </h:selectOneRadio>
+                                </div>
+                                <!-- // SELECT ONE ACTION -->
+
+                            </div>
+                            <!-- // SELECT ONE ROW -->
+
+                            <!-- INPUT ROW -->
+                            <h:panelGroup
+                                layout="block"
+                                class="row"
+                                id="locationInput"
+                                rendered="#{barcodeBean.renderLocationInput}">
+
+                                <!-- LABEL LOCATION -->
+                                <div class="col-12 col-md-3">
+                                    <intranda:formLabel
+                                        label="#{msgs.standort}"
+                                        labelFor="locationField"
+                                        labelRequired="false" />
+                                </div>
+                                <!-- // LABEL LOCATION -->
+
+                                <!-- INPUT LOCATION -->
+                                <div class="col-12 col-md-9">
+                                    <h:inputText
+                                        id="locationField"
+                                        styleClass="form-control form__input"
+                                        value="#{barcodeBean.location}"
+                                        required="true"
+                                        readonly="false"
+                                        tabindex="0">
+                                    </h:inputText>
+                                </div>
+                                <!-- // INPUT LOCATION -->
+
+                            </h:panelGroup>
+                            <!-- INPUT ROW -->
+
+                            <!-- INPUT ROW -->
+                            <div class="row">
+
+                                <!-- LABEL BARCODE -->
+                                <div class="col-12 col-md-3">
+                                    <intranda:formLabel
+                                        label="#{msgs.prozessTitel}"
+                                        labelFor="barcodeField"
+                                        labelRequired="true" />
+                                </div>
+                                <!-- // LABEL BARCODE -->
+
+                                <!-- INPUT BARCODE -->
+                                <div class="col-12 col-md-9">
+                                    <h:inputText
+                                        id="barcodeField"
+                                        styleClass="form-control form__input"
+                                        value="#{barcodeBean.barcode}"
+                                        required="true"
+                                        readonly="false"
+                                        tabindex="0"
+                                        pt:autofocus="true">
+                                    </h:inputText>
+                                </div>
+                                <!-- // INPUT BARCODE -->
+
+                            </div>
+                            <!-- INPUT ROW -->
+
+                            <div class="box__actions">
+                                <!-- EXECUTION BUTTON -->
+                                <button
+                                    class="btn btn-success"
+                                    jsf:id="absenden"
+                                    type="submit"
+                                    jsf:action="#{barcodeBean.execute}">
+                                    <i class="fa fa-save"></i>
+                                    <span>
+                                        <h:outputText value="#{msgs.plugin_dashboard_barcode_execute}" />
+                                    </span>
+                                </button>
+                                <!-- // EXECUTION BUTTON -->
+                            </div>
+
+                        </intranda:box>
+
+                    </div>
+                </div>
+            </h:form>
+        </ui:fragment>
+
+    </composite:implementation>
+</ui:composition>
