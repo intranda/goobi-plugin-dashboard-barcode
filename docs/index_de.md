@@ -28,7 +28,7 @@ Für eine Nutzung dieses Plugins muss der Nutzer innerhalb der Einstellungen fü
 
 
 ## Überblick und Funktionsweise
-Um dieses Dashboard-Plugin zu nutzen, muss man es zunächst über `Einstellungen -> Allgemein -> Dashboard` aktivieren und sich dann ggf. neu anmelden. Wenn das Plugin korrekt installiert und konfiguriert wurde, sollte es bereits unter dem Menüpunkt `Dashboard` aktiviert sein.
+Um dieses Dashboard-Plugin zu nutzen, muss man es zunächst über `Einstellungen` -> `Allgemein` -> `Dashboard` aktivieren und sich dann ggf. neu anmelden. Wenn das Plugin korrekt installiert und konfiguriert wurde, sollte es bereits unter dem Menüpunkt `Dashboard` aktiviert sein.
 
 ![Nutzeroberfläche des Dashboards](screen2_de.png)
 
