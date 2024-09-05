@@ -12,11 +12,11 @@ More information about the functionality of this plugin and the complete documen
 
 Detail                      | Description
 --------------------------- | ----------------------
-**Plugin identifier**       | -
+**Plugin identifier**       | intranda_dashboard_barcode
 **Plugin type**             | dashboard
 **Licence**                 | GPL 2.0 or newer
-**Documentation (German)**  | This plugin is not yet documented.
-**Documentation (English)** | This plugin is not yet documented.
+**Documentation (German)**  | https://docs.goobi.io/workflow-plugins/v/ger/dashboard/goobi-plugin-dashboard-barcode
+**Documentation (English)** | https://docs.goobi.io/workflow-plugins/v/eng/dashboard/goobi-plugin-dashboard-barcode
 
 ## Goobi details
 
