@@ -30,9 +30,21 @@ Für eine Nutzung dieses Plugins muss der Nutzer innerhalb der Einstellungen fü
 ## Überblick und Funktionsweise
 Um dieses Dashboard-Plugin zu nutzen, muss man es zunächst über `Einstellungen` -> `Allgemein` -> `Dashboard` aktivieren und sich dann ggf. neu anmelden. Wenn das Plugin korrekt installiert und konfiguriert wurde, sollte es bereits unter dem Menüpunkt `Dashboard` aktiviert sein.
 
-![Nutzeroberfläche des Dashboards](screen2_de.png)
+![Das Annehmen und Abschließen von Aufgaben](screen2_de.png)
 
-Auf der rechten Seite befindet sich ein Formular mit verschiedenen Aktionen. Sie können eine auswählen, indem Sie darauf klicken. Wird die Aktion `Nur Ortsänderung` gewählt, gibt es ein zusätzliches Eingabefeld, das den Namen des neuen Orts erwartet. Für alle Aktionen gibt es ein obligatorisches Eingabefeld, in dem der Titel des Goobi-Vorgangs erwartet wird. Dieses Feld wird nach dem Laden automatisch fokussiert, um die Verwendung eines Barcodescanners zu erleichtern. Durch Anklicken des Buttons `Ausführen` wird die gewählte Aktion ausgeführt, und es werden Meldungen über den Erfolg ausgegeben. Die durchgeführte Aktion sowie der Eingabeort werden zur Erleichterung weiterer Anwendungen gespeichert. Sie bleiben unverändert, bis eine manuelle Änderung vorgenommen wird.
+Auf der rechten Seite befindet sich ein Formular mit verschiedenen Aktionen. Sie können eine auswählen, indem Sie darauf klicken. Wird die Aktion `Nur Ortsänderung` gewählt, gibt es ein zusätzliches Eingabefeld, das den Namen des neuen Orts erwartet. 
+
+![Die Erfassung eines Ortswechsels](screen3_de.png)
+
+Für alle Aktionen gibt es ein obligatorisches Eingabefeld, in dem der Titel des Goobi-Vorgangs erwartet wird. Dieses Feld wird nach dem Laden automatisch fokussiert, um die Verwendung eines Barcodescanners zu erleichtern. Durch Anklicken des Buttons `Ausführen` wird die gewählte Aktion ausgeführt, und es werden Meldungen über den Erfolg ausgegeben. Die durchgeführte Aktion sowie der Eingabeort werden zur Erleichterung weiterer Anwendungen gespeichert. Sie bleiben unverändert, bis eine manuelle Änderung vorgenommen wird.
+
+Im Fall, dass Ortwechsel erfasst werden, sind diese auch zu einem späteren Zeitpunkt jederzeit innerhalb des Journals noch nachvollziehbar.
+
+![Gespeicherte Informationen zum Ortswechsel im Journal](screen4_de.png)
+
+Der jeweils aktuelle Aufenthaltsort des Objektes wird darüber hinaus in einer eigenen Eigenschaft gespeichert.
+
+![Aktueller Ort innerhalb einer Eigenschaft](screen5_de.png)
 
 ## Konfiguration
 Die Konfiguration des Plugins erfolgt in der Datei `plugin_intranda_dashboard_barcode.xml` wie hier aufgezeigt:
