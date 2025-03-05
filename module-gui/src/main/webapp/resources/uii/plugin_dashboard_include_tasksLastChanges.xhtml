@@ -7,7 +7,7 @@
     xmlns:x="http://myfaces.apache.org/tomahawk"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG">
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites">
 
     <composite:interface>
     </composite:interface>
@@ -25,7 +25,7 @@
                     <h:form
                         id="recenttasks"
                         prependId="false">
-                        <!-- 
+                        <!--
                         <div class="gw-table" style="#{DashboardForm.plugin.tasksHelper.taskChangeHistory.size() gt 4 ? 'overflow-y:auto; max-height:225px;' : ''}">
                         -->
                         <div class="gw-table" style="#{DashboardForm.plugin.tasksHelper.taskChangeHistory.size() gt 4 ? 'overflow-y:auto; max-height:525px; ' : ''}">
@@ -104,5 +104,3 @@
     </composite:implementation>
 
 </ui:composition>
-
-
