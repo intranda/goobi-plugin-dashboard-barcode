@@ -3,6 +3,10 @@ title: Barcode Scanner Dashboard
 identifier: intranda_dashboard_barcode
 description: Dashboard Plugin für das automatische Übernehmen bzw. Abschließen von Arbeitsschritten sowie zur Änderung von Standortangaben mittels Barcode-Scanner
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Dashboard Plugin
 ---
 
 ## Einführung
