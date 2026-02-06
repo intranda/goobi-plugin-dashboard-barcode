@@ -7,7 +7,8 @@
     xmlns:x="http://myfaces.apache.org/tomahawk"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites">
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:util="http://goobi.io/util">
 
     <composite:interface>
     </composite:interface>
@@ -19,7 +20,7 @@
                 <intranda:box
                     boxType="primary"
                     boxPadding="false"
-                    icon="fa-list"
+                    icon="list"
                     title="#{msgs.plugin_dashboard_extended_recentlyClosedTasks}">
 
                     <h:form
@@ -78,7 +79,7 @@
                                                         jsf:id="view1"
                                                         class="btn btn-blank"
                                                         jsf:action="#{DashboardForm.plugin.tasksHelper.reOpenTask}">
-                                                        <i class="fa fa-undo"></i>
+                                                        <util:icon icon="arrow-back-up" />
                                                         <f:passThroughAttribute
                                                             name="data-toggle"
                                                             value="tooltip" />
