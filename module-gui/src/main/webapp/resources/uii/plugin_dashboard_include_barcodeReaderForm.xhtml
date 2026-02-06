@@ -9,7 +9,8 @@
     xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
     xmlns:jsf="http://xmlns.jcp.org/jsf"
-    xmlns:p="http://primefaces.org/ui">
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:util="http://goobi.io/util">
 
     <composite:interface>
     </composite:interface>
@@ -26,7 +27,7 @@
                             boxForm="true"
                             boxPadding="false"
                             title="#{msgs.plugin_dashboard_barcode_barcodeScanner}"
-                            icon="fa-edit"
+                            icon="pencil"
                             id="barcodeScannerBox">
 
                             <!-- SELECT ONE ROW -->
@@ -148,7 +149,7 @@
                                     jsf:id="absenden"
                                     type="submit"
                                     jsf:action="#{barcodeBean.execute}">
-                                    <i class="fa fa-save"></i>
+                                    <util:icon icon="device-floppy" />
                                     <span>
                                         <h:outputText value="#{msgs.plugin_dashboard_barcode_execute}" />
                                     </span>
